@@ -6,34 +6,47 @@ import axios from "axios";
 export function Search() {
   const [searchInputValue, setSearchInputValue] = useState("");
   const [searchList, setSearchList] = useState([]);
-  const [fiteredList, setFilteredList] = useState([]);
+  // const [fiteredList, setFilteredList] = useState([]);
   const API_URL =
     "https://api.themoviedb.org/3/search/movie?api_key=d3449ff6ec0c027623bf6b6f5fff78b3&language=en-US&page=1&include_adult=false";
+
   const handleChange = (event) => {
     setSearchInputValue(event.target.value);
-    const newFilteredList = searchList.filter((data) => {
-      return data.title
-        .toLowerCase()
-        .includes(event.target.value.toLowerCase());
-    });
-    setFilteredList(newFilteredList);
+
+    // This method is used to local filter . Means initailly data render in browser and then filter this data .
+
+    // const newFilteredList = searchList.filter((data) => {
+    //   return data.title
+    //     .toLowerCase()
+    //     .includes(event.target.value.toLowerCase());
+    // });
+    // setFilteredList(newFilteredList);
   };
 
   const clearSearch = () => {
     setFilteredList([]);
     setSearchInputValue("");
   };
+
   const fetchMovieList = async () => {
     const response = await axios(API_URL, {
-      params: { query: "movie" },
+      params: { query: searchInputValue },
     });
     setSearchList(response.data.results);
-    setFilteredList(response.data.results);
-    console.log("filtered list calling...,,..");
+    // setFilteredList(response.data.results);
+    // console.log("filtered list calling...,,..");
   };
   useEffect(() => {
-    fetchMovieList();
-  }, []);
+    let timer = setTimeout(() => {
+      if (searchInputValue) {
+        fetchMovieList();
+      }
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchInputValue]);
   return (
     <div className="search-container">
       <div className="heading-section">
@@ -48,7 +61,7 @@ export function Search() {
         handleChange={handleChange}
         clearSearch={clearSearch}
       />
-      <SearchList searchList={fiteredList} />
+      <SearchList searchList={searchList} />
     </div>
   );
 }
