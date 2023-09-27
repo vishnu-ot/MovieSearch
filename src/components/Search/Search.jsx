@@ -1,9 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SearchInput } from "./SearchInput/SearchInput";
 import { SearchList } from "./SearchList/SearchList";
 import "./Search.css";
-
+import axios from "axios";
 export function Search() {
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const [searchList, setSearchList] = useState([]);
+  const [fiteredList, setFilteredList] = useState([]);
+  const API_URL =
+    "https://api.themoviedb.org/3/search/movie?api_key=d3449ff6ec0c027623bf6b6f5fff78b3&language=en-US&page=1&include_adult=false";
+  const handleChange = (event) => {
+    setSearchInputValue(event.target.value);
+    const newFilteredList = searchList.filter((data) => {
+      return data.title
+        .toLowerCase()
+        .includes(event.target.value.toLowerCase());
+    });
+    setFilteredList(newFilteredList);
+  };
+
+  const clearSearch = () => {
+    setFilteredList([]);
+    setSearchInputValue("");
+  };
+  const fetchMovieList = async () => {
+    const response = await axios(API_URL, {
+      params: { query: "movie" },
+    });
+    setSearchList(response.data.results);
+    setFilteredList(response.data.results);
+    console.log("filtered list calling...,,..");
+  };
+  useEffect(() => {
+    fetchMovieList();
+  }, []);
   return (
     <div className="search-container">
       <div className="heading-section">
@@ -13,8 +43,12 @@ export function Search() {
         />
         <h1>Looking for a movie?</h1>
       </div>
-      <SearchInput />
-      <SearchList />
+      <SearchInput
+        searchInputValue={searchInputValue}
+        handleChange={handleChange}
+        clearSearch={clearSearch}
+      />
+      <SearchList searchList={fiteredList} />
     </div>
   );
 }
