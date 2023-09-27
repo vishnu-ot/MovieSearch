@@ -24,7 +24,8 @@ export function Search() {
   };
 
   const clearSearch = () => {
-    setFilteredList([]);
+    // setFilteredList([]);
+    setSearchList([]);
     setSearchInputValue("");
   };
 
